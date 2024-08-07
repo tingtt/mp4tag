@@ -1112,18 +1112,18 @@ func (mp4 *MP4) actualWrite(tags *MP4Tags, _delStrings []string) error {
 		return &ErrBoxNotPresent{Msg: "ilst box not present, implement me"}
 	}
 	mergedTags = overwriteTags(mergedTags, tags, delStrings)
-	tempPath := getTempPath(mp4.path)
+	tempPath := getTempPath(mp4.f.Name())
 	err = mp4.writeTags(boxes, mergedTags, tempPath)
 	if err != nil {
 		return err
 	}
 	mp4.Close()
-	err = moveMP4(tempPath, mp4.path)
+	err = moveMP4(tempPath, mp4.f.Name())
 	if err != nil {
 		return err
 	}
 
-	m, err := Open(mp4.path)
+	m, err := Open(mp4.f.Name())
 	if err != nil {
 		return err
 	}

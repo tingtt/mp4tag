@@ -59,7 +59,6 @@ var numbers = []rune{
 
 type MP4 struct {
 	f           *os.File
-	path        string
 	size        int64
 	upperCustom bool
 }
