@@ -1,25 +1,32 @@
-# go-mp4tag
+# mp4tag
+
 MP4 tag library written in Go.
 
 ### Setup
+
 ```
-go get github.com/Sorrow446/go-mp4tag
+go get github.com/tingtt/mp4tag
 ```
 
 ### Usage Examples
+
 ```go
-import "github.com/Sorrow446/go-mp4tag"
-```
-Opening is omitted from the examples.
-```go
-mp4, err := mp4tag.Open("1.m4a")
-if err != nil {
-	panic(err)
-}
-defer mp4.Close()
+import "github.com/tingtt/mp4tag"
 ```
 
-Read album title:
+#### Read
+
+Opening is omitted from the examples.
+
+```go
+file, _ := os.Open("/path/to/track.m4a")
+defer file.Close()
+
+mp4, err := mp4tag.Reader(file)
+```
+
+##### Read album title
+
 ```go
 tags, err := mp4.Read()
 if err != nil {
@@ -28,7 +35,8 @@ if err != nil {
 fmt.Println(tags.Album)
 ```
 
-Extract all covers:
+##### Extract all covers
+
 ```go
 tags, err := mp4.Read()
 if err != nil {
@@ -44,7 +52,24 @@ for idx, pic := range tags.Pictures {
 }
 ```
 
-Write two covers:
+#### Write
+
+Opening is omitted from the examples.
+
+```go
+mp4, err := mp4tag.Open("/path/to/track.m4a")
+defer mp4.Close()
+```
+
+```go
+file, _ := os.Open("/path/to/track.m4a")
+
+mp4, err := mp4tag.ParseReadWriter(file)
+defer mp4.Close()
+```
+
+##### Write two covers
+
 ```go
 picOneData, err := os.ReadFile("1.jpg")
 if err != nil {
@@ -69,8 +94,8 @@ if err != nil {
 }
 ```
 
+##### Write track number and total
 
-Write track number and total:
 ```go
 tags := &mp4tag.MP4Tags{
 	TrackNumber: 1,
@@ -83,7 +108,8 @@ if err != nil {
 }
 ```
 
-Delete comment:
+##### Delete comment
+
 ```go
 err = mp4.Write(&mp4tag.MP4Tags{}, []string{"comment"})
 if err != nil {
@@ -92,7 +118,9 @@ if err != nil {
 ```
 
 ### Deletion Strings
+
 Case insensitive.
+
 - album
 - albumartist
 - albumrtistsort

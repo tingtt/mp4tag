@@ -1,4 +1,4 @@
-module github.com/Sorrow446/go-mp4tag
+module github.com/tingtt/mp4tag
 
 go 1.21.6
 
