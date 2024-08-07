@@ -304,9 +304,7 @@ func overwriteTags(mergedTags, tags *MP4Tags, delStrings []string) *MP4Tags {
 		}
 	}
 
-	for _, p := range tags.Pictures {
-		filteredPics = append(filteredPics, p)
-	}
+	filteredPics = append(filteredPics, tags.Pictures...)
 
 	mergedTags.Pictures = filteredPics
 	return mergedTags
@@ -481,9 +479,6 @@ func writeTrknDisc(f *os.File, n, total int16, isTrkn bool) error {
 		return err
 	}
 	boxSizeBytes = putI32BE(boxSize - 8)
-	if err != nil {
-		return err
-	}
 	_, err = f.Write(boxSizeBytes)
 	if err != nil {
 		return err
@@ -631,7 +626,10 @@ func writeCustom(f *os.File, name, value string, upper bool, others map[string][
 	nameSize := len(nameUpperBytes)
 
 	totalSize := nameSize + valueSize + 64
-	otherCust, _ := others[name]
+	otherCust, exists := others[name]
+	if !exists {
+		return fmt.Errorf("others.%s does not exist", name)
+	}
 
 	for _, other := range otherCust {
 		totalSize += len([]byte(other)) + 16

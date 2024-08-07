@@ -22,11 +22,11 @@ func (e *ErrUnsupportedFtyp) Error() string {
 	return e.Msg
 }
 
-func (_ *ErrInvalidStcoSize) Error() string {
+func (e *ErrInvalidStcoSize) Error() string {
 	return "stco size is invalid"
 }
 
-func (_ *ErrInvalidMagic) Error() string {
+func (e *ErrInvalidMagic) Error() string {
 	return "file header is corrupted or not an mp4 file"
 }
 
