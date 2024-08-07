@@ -29,11 +29,11 @@ func (mp4 *MP4) Write(tags *MP4Tags, delStrings []string) error {
 }
 
 func (mp4 *MP4) checkHeader() error {
-	buf := make([]byte, 8)
 	_, err := mp4.f.Seek(4, io.SeekStart)
 	if err != nil {
 		return err
 	}
+	buf := make([]byte, 8)
 	_, err = io.ReadFull(mp4.f, buf)
 	if err != nil {
 		return err
