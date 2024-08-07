@@ -323,7 +323,7 @@ func putI32BE(n int32) []byte {
 	return buf
 }
 
-func (mp4 MP4) updateChunkOffsets(outF *os.File, boxes MP4Boxes, oldIlistSize, newIlistSize int64) error {
+func (mp4 MP4RW) updateChunkOffsets(outF *os.File, boxes MP4Boxes, oldIlistSize, newIlistSize int64) error {
 	stco := boxes.getBoxByPath("moov.trak.mdia.minf.stbl.stco")
 	_, err := mp4.f.Seek(stco.StartOffset+12, io.SeekStart)
 	if err != nil {
@@ -356,7 +356,7 @@ func (mp4 MP4) updateChunkOffsets(outF *os.File, boxes MP4Boxes, oldIlistSize, n
 	return nil
 }
 
-func (mp4 MP4) readToOffset(f *os.File, startOffset int64) error {
+func (mp4 MP4RW) readToOffset(f *os.File, startOffset int64) error {
 	_, err := mp4.f.Seek(0, io.SeekStart)
 	if err != nil {
 		return err
@@ -827,7 +827,7 @@ func resizeBoxes(f *os.File, boxes MP4Boxes, oldIlstSize, newIlistSize int64) er
 	return err
 }
 
-func (mp4 MP4) writeRemaining(f *os.File) error {
+func (mp4 MP4RW) writeRemaining(f *os.File) error {
 	buf := make([]byte, BufSize)
 	for {
 		read, err := mp4.f.Read(buf)
@@ -852,7 +852,7 @@ func (mp4 MP4) writeRemaining(f *os.File) error {
 	return nil
 }
 
-func (mp4 MP4) writeTags(boxes MP4Boxes, tags *MP4Tags, tempPath string) error {
+func (mp4 MP4RW) writeTags(boxes MP4Boxes, tags *MP4Tags, tempPath string) error {
 	ilst := boxes.getBoxByPath("moov.udta.meta.ilst")
 	oldIlstSize := ilst.BoxSize
 	f, err := os.OpenFile(tempPath, os.O_CREATE|os.O_WRONLY, 0644)
@@ -1101,7 +1101,7 @@ func (mp4 MP4) writeTags(boxes MP4Boxes, tags *MP4Tags, tempPath string) error {
 	return err
 }
 
-func (mp4 *MP4) actualWrite(tags *MP4Tags, _delStrings []string) error {
+func (mp4 *MP4RW) actualWrite(tags *MP4Tags, _delStrings []string) error {
 	delStrings := strArrToLower(_delStrings)
 
 	mergedTags, boxes, err := mp4.actualRead()
@@ -1123,11 +1123,13 @@ func (mp4 *MP4) actualWrite(tags *MP4Tags, _delStrings []string) error {
 		return err
 	}
 
-	m, err := Open(mp4.f.Name())
+	m, err := open(mp4.f.Name())
 	if err != nil {
 		return err
 	}
 	mp4.f = m.f
+	mp4.MP4R.f = m.f
 	mp4.size = m.size
+	mp4.MP4R.size = m.size
 	return nil
 }

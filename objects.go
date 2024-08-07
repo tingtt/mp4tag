@@ -1,6 +1,9 @@
 package mp4tag
 
-import "os"
+import (
+	"io"
+	"os"
+)
 
 type ErrBoxNotPresent struct {
 	Msg string
@@ -57,8 +60,12 @@ var numbers = []rune{
 	0x35, 0x36, 0x37, 0x38, 0x39,
 }
 
-type MP4 struct {
-	f           *os.File
+type MP4RW struct {
+	MP4R
+	f *os.File
+}
+type MP4R struct {
+	f           io.ReadSeeker
 	size        int64
 	upperCustom bool
 }

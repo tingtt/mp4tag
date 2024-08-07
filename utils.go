@@ -52,7 +52,7 @@ func getTempPath(path string) string {
 	return tempPath
 }
 
-func getPos(f *os.File) (int64, error) {
+func getPos(f io.Seeker) (int64, error) {
 	return f.Seek(0, io.SeekCurrent)
 }
 

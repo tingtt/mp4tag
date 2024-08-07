@@ -27,7 +27,7 @@ func (boxes MP4Boxes) getBoxesByPath(boxPath string) []*MP4Box {
 	return outBoxes
 }
 
-func (mp4 MP4) readString(size int64) (string, error) {
+func (mp4 MP4R) readString(size int64) (string, error) {
 	buf := make([]byte, size)
 	_, err := io.ReadFull(mp4.f, buf)
 	if err != nil {
@@ -36,7 +36,7 @@ func (mp4 MP4) readString(size int64) (string, error) {
 	return string(buf), nil
 }
 
-func (mp4 MP4) readBoxName() (string, error) {
+func (mp4 MP4R) readBoxName() (string, error) {
 	buf := make([]byte, 4)
 	_, err := io.ReadFull(mp4.f, buf)
 	if err != nil {
@@ -49,7 +49,7 @@ func (mp4 MP4) readBoxName() (string, error) {
 	return boxName, nil
 }
 
-func (mp4 MP4) readI16BE() (int16, error) {
+func (mp4 MP4R) readI16BE() (int16, error) {
 	buf := make([]byte, 2)
 	_, err := io.ReadFull(mp4.f, buf)
 	if err != nil {
@@ -59,7 +59,7 @@ func (mp4 MP4) readI16BE() (int16, error) {
 	return int16(num), nil
 }
 
-func (mp4 MP4) readI32BE() (int32, error) {
+func (mp4 MP4R) readI32BE() (int32, error) {
 	buf := make([]byte, 4)
 	_, err := io.ReadFull(mp4.f, buf)
 	if err != nil {
@@ -69,7 +69,7 @@ func (mp4 MP4) readI32BE() (int32, error) {
 	return int32(num), nil
 }
 
-func (mp4 MP4) readBoxes(boxes MP4Boxes, parentEndsAt, level int64, p string) (MP4Boxes, error) {
+func (mp4 MP4R) readBoxes(boxes MP4Boxes, parentEndsAt, level int64, p string) (MP4Boxes, error) {
 	empty := MP4Boxes{}
 	pos, err := getPos(mp4.f)
 	if err != nil {
@@ -131,7 +131,7 @@ func checkBoxes(boxes MP4Boxes) error {
 	return nil
 }
 
-func (mp4 MP4) readTag(boxes MP4Boxes, boxName string) (string, error) {
+func (mp4 MP4R) readTag(boxes MP4Boxes, boxName string) (string, error) {
 	path := fmt.Sprintf("moov.udta.meta.ilst.%s.data", boxName)
 	box := boxes.getBoxByPath(path)
 	if box == nil {
@@ -145,7 +145,7 @@ func (mp4 MP4) readTag(boxes MP4Boxes, boxName string) (string, error) {
 	return tag, err
 }
 
-func (mp4 MP4) readByte() (byte, error) {
+func (mp4 MP4R) readByte() (byte, error) {
 	buf := make([]byte, 1)
 	_, err := mp4.f.Read(buf)
 	if err != nil {
@@ -154,7 +154,7 @@ func (mp4 MP4) readByte() (byte, error) {
 	return buf[0], nil
 }
 
-func (mp4 MP4) readBPM(boxes MP4Boxes) (int16, error) {
+func (mp4 MP4R) readBPM(boxes MP4Boxes) (int16, error) {
 	box := boxes.getBoxByPath("moov.udta.meta.ilst.tmpo.data")
 	if box == nil {
 		return -1, nil
@@ -167,7 +167,7 @@ func (mp4 MP4) readBPM(boxes MP4Boxes) (int16, error) {
 	return bpm, err
 }
 
-func (mp4 MP4) readPics(_boxes MP4Boxes) ([]*MP4Picture, error) {
+func (mp4 MP4R) readPics(_boxes MP4Boxes) ([]*MP4Picture, error) {
 	var outPics []*MP4Picture
 	boxes := _boxes.getBoxesByPath("moov.udta.meta.ilst.covr.data")
 	if boxes == nil {
@@ -207,7 +207,7 @@ func (mp4 MP4) readPics(_boxes MP4Boxes) ([]*MP4Picture, error) {
 	return outPics, nil
 }
 
-func (mp4 MP4) readTrknDisk(boxes MP4Boxes, boxName string) (int16, int16, error) {
+func (mp4 MP4R) readTrknDisk(boxes MP4Boxes, boxName string) (int16, int16, error) {
 	path := fmt.Sprintf("moov.udta.meta.ilst.%s.data", boxName)
 	box := boxes.getBoxByPath(path)
 	if box == nil {
@@ -240,7 +240,7 @@ func addToOthers(others map[string][]string, key, val string) map[string][]strin
 	return others
 }
 
-func (mp4 MP4) readCustom(boxes MP4Boxes) (map[string]string, map[string][]string, error) {
+func (mp4 MP4R) readCustom(boxes MP4Boxes) (map[string]string, map[string][]string, error) {
 	var (
 		names  []string
 		values []string
@@ -311,7 +311,7 @@ func (mp4 MP4) readCustom(boxes MP4Boxes) (map[string]string, map[string][]strin
 	return custom, others, nil
 }
 
-func (mp4 MP4) readITAlbumID(boxes MP4Boxes) (int32, error) {
+func (mp4 MP4R) readITAlbumID(boxes MP4Boxes) (int32, error) {
 	box := boxes.getBoxByPath("moov.udta.meta.ilst.plID.data")
 	if box == nil {
 		return -1, nil
@@ -324,7 +324,7 @@ func (mp4 MP4) readITAlbumID(boxes MP4Boxes) (int32, error) {
 	return id, err
 }
 
-func (mp4 MP4) readITArtistID(boxes MP4Boxes) (int32, error) {
+func (mp4 MP4R) readITArtistID(boxes MP4Boxes) (int32, error) {
 	box := boxes.getBoxByPath("moov.udta.meta.ilst.atID.data")
 	if box == nil {
 		return -1, nil
@@ -337,7 +337,7 @@ func (mp4 MP4) readITArtistID(boxes MP4Boxes) (int32, error) {
 	return id, err
 }
 
-func (mp4 MP4) readAdvisory(boxes MP4Boxes) (ItunesAdvisory, error) {
+func (mp4 MP4R) readAdvisory(boxes MP4Boxes) (ItunesAdvisory, error) {
 	none := ItunesAdvisoryNone
 	box := boxes.getBoxByPath("moov.udta.meta.ilst.rtng.data")
 	if box == nil {
@@ -358,7 +358,7 @@ func (mp4 MP4) readAdvisory(boxes MP4Boxes) (ItunesAdvisory, error) {
 	return advisory, nil
 }
 
-func (mp4 MP4) readGenre(boxes MP4Boxes) (Genre, error) {
+func (mp4 MP4R) readGenre(boxes MP4Boxes) (Genre, error) {
 	none := GenreNone
 	box := boxes.getBoxByPath("moov.udta.meta.ilst.gnre.data")
 	if box == nil {
@@ -379,7 +379,7 @@ func (mp4 MP4) readGenre(boxes MP4Boxes) (Genre, error) {
 	return genre, nil
 }
 
-func (mp4 MP4) readTags(boxes MP4Boxes) (*MP4Tags, error) {
+func (mp4 MP4R) readTags(boxes MP4Boxes) (*MP4Tags, error) {
 	album, err := mp4.readTag(boxes, "(c)alb")
 	if err != nil {
 		return nil, err
@@ -523,7 +523,7 @@ func (mp4 MP4) readTags(boxes MP4Boxes) (*MP4Tags, error) {
 	return tags, nil
 }
 
-func (mp4 MP4) actualRead() (*MP4Tags, MP4Boxes, error) {
+func (mp4 MP4R) actualRead() (*MP4Tags, MP4Boxes, error) {
 	var boxes MP4Boxes
 	_, err := mp4.f.Seek(0, io.SeekStart)
 	if err != nil {
